@@ -49,6 +49,11 @@ type result struct {
 	City    string `json:"city,omitempty"`
 }
 
+func (r *result) UnmarshalJSON(b []byte) error {
+	a := []interface{}{&r.Domain, &r.Host, &r.IP, &r.Port, &r.Title, &r.Country, &r.City}
+	return json.Unmarshal(b, &a)
+}
+
 // User struct for fofa user
 type User struct {
 	Email  string `json:"email,omitempty"`
@@ -59,11 +64,13 @@ type User struct {
 }
 
 // Results fofa result set
-type Results []result
+type Results struct {
+	Results []result
+}
 
 const (
-	DefaultAPIUrl = "https://fofa.so/"
-	InfoAPIUrl    = "https://fofa.info/"
+	DefaultAPI = "https://fofa.so/"
+	InfoAPI    = "https://fofa.info/"
 )
 
 var (
@@ -148,7 +155,7 @@ func (ff *Fofa) QueryAsJSON(page uint, args ...[]byte) ([]byte, error) {
 // return array data as result
 // echo 'domain="nosec.org"' | base64 - | xargs -I{}
 // curl "https://fofa.so/api/v1/search/all?email=${FOFA_EMAIL}&key=${FOFA_KEY}&qbase64={}"
-func (ff *Fofa) QueryAsArray(page uint, args ...[]byte) (result Results, err error) {
+func (ff *Fofa) QueryAsArray(page uint, args ...[]byte) (result *Results, err error) {
 
 	var content []byte
 
@@ -163,7 +170,8 @@ func (ff *Fofa) QueryAsArray(page uint, args ...[]byte) (result Results, err err
 		return nil, errors.New(errmsg)
 	}
 
-	err = json.Unmarshal(content, &result)
+	result = &Results{}
+	err = json.Unmarshal(content, result)
 
 	return
 }

@@ -1,0 +1,4 @@
+github.com/buger/jsonparser v1.1.1 h1:2PnMjfWD7wBILjqQbt530v576A/cAbQvEW9gGIpYMUs=
+github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
+github.com/fofapro/fofa-go v0.0.0-20200317042037-c0caee09013d h1:UiqIc/3lkMuU/N3KPO0idxX5JDWxwxEexbc38IV3+0s=
+github.com/fofapro/fofa-go v0.0.0-20200317042037-c0caee09013d/go.mod h1:hcTueqMxqEIm7jD0wK7+rEJVvieYVgXv6Cif8PZsB2U=

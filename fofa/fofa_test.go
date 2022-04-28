@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	clt = NewFofaClient([]byte(os.Getenv("FOFA_EMAIL")), []byte(os.Getenv("FOFA_KEY")))
+	clt = NewFofaClient([]byte(os.Getenv("FOFA_EMAIL")), []byte(os.Getenv("FOFA_KEY")), DefaultAPI)
 )
 
 func EqualBytes(a, b []byte) bool {
@@ -41,7 +41,7 @@ func TestNewFofaClient(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		email := strconv.Itoa(rand.Int())
 		key := strconv.Itoa(rand.Int())
-		clt := NewFofaClient([]byte(email), []byte(key))
+		clt := NewFofaClient([]byte(email), []byte(key), DefaultAPI)
 		if !EqualBytes([]byte(email), clt.email) || !EqualBytes([]byte(key), clt.key) {
 			t.Errorf("expect email = %s  key = %s , but email = %s  key = %s\n", email, key, clt.email, clt.key)
 		}
@@ -52,14 +52,14 @@ func TestNewFofaClientError(t *testing.T) {
 	email := os.Getenv("FOFA_EMAIL")
 	key := os.Getenv("FOFA_KEY")
 
-	clt := NewFofaClient([]byte(email+"0000"), []byte(key))
+	clt := NewFofaClient([]byte(email+"0000"), []byte(key), DefaultAPI)
 	userinfo, err := clt.UserInfo()
 	if err == nil {
 		t.Errorf("%v\n", err.Error())
 	} else if userinfo.Email != "" {
 		t.Errorf("expect userinfo is empty, but %v\n", userinfo)
 	}
-	clt = NewFofaClient([]byte(email), []byte(key+"0000"))
+	clt = NewFofaClient([]byte(email), []byte(key+"0000"), DefaultAPI)
 	userinfo, err = clt.UserInfo()
 	if err == nil {
 		t.Errorf("%v\n", err.Error())
@@ -79,7 +79,7 @@ func TestQueryAsJSON(t *testing.T) {
 		page         = uint(0)
 	)
 	// -------------------------------------------
-	clt := NewFofaClient([]byte(os.Getenv("FOFA_EMAIL")), []byte(os.Getenv("FOFA_KEY")))
+	clt := NewFofaClient([]byte(os.Getenv("FOFA_EMAIL")), []byte(os.Getenv("FOFA_KEY")), DefaultAPI)
 	if clt == nil {
 		t.Errorf("create fofa client failed!")
 	}
@@ -164,7 +164,7 @@ func TestQueryAsJSON(t *testing.T) {
 
 func TestQueryAsArray(t *testing.T) {
 	var (
-		arr                                          = Results(nil)
+		arr                                          = &Results{}
 		err                                          = error(nil)
 		query, fields                                = []byte(nil), []byte(nil)
 		page, size                                   = uint(0), uint(0)
@@ -342,7 +342,7 @@ func TestOnlyOneResult(t *testing.T) {
 	}
 	var (
 		query, fields = []byte(nil), []byte(nil)
-		arr           = Results(nil)
+		arr           = &Results{}
 		err           = error(nil)
 	)
 	{ // fields == nil
@@ -351,7 +351,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "Beijing" {
 			t.Errorf("Expect City Beijing  But %s\n", haosec.City)
 		}
@@ -380,7 +380,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "" {
 			t.Errorf("Expect City EMPTY  But %s\n", haosec.City)
 		}
@@ -409,7 +409,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "" {
 			t.Errorf("Expect City EMPTY  But %s\n", haosec.City)
 		}
@@ -437,7 +437,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "" {
 			t.Errorf("Expect City EMPTY  But %s\n", haosec.City)
 		}
@@ -465,7 +465,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "Beijing" {
 			t.Errorf("Expect City Beijing  But %s\n", haosec.City)
 		}
@@ -493,7 +493,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "" {
 			t.Errorf("Expect City EMPTY  But %s\n", haosec.City)
 		}
@@ -522,7 +522,7 @@ func TestOnlyOneResult(t *testing.T) {
 		if err != nil {
 			t.Errorf("%v\n", err.Error())
 		}
-		haosec := arr[0]
+		haosec := arr.Results[0]
 		if haosec.City != "Beijing" {
 			t.Errorf("Expect City Beijing  But %s\n", haosec.City)
 		}
@@ -578,7 +578,7 @@ func TestIP(t *testing.T) {
 
 	var (
 		query, fields = []byte(nil), []byte(nil)
-		arr           = Results(nil)
+		arr           = &Results{}
 		err           = error(nil)
 	)
 
@@ -588,10 +588,10 @@ func TestIP(t *testing.T) {
 	switch {
 	case err != nil:
 		t.Errorf("%v\n", err.Error())
-	case len(arr) != 4:
-		t.Errorf("expect 4 records, but get %d\n", len(arr))
+	case len(arr.Results) != 4:
+		t.Errorf("expect 4 records, but get %d\n", len(arr.Results))
 	}
-	for _, v := range arr {
+	for _, v := range arr.Results {
 		switch {
 		case v.Port == "6379":
 			if v.Domain != "" || v.Title != "" {
@@ -619,15 +619,15 @@ func jsonExpectEqual(t *testing.T, data, mode, query []byte, page, size uint) {
 	}
 }
 
-func arrayExpectEqual(t *testing.T, data Results, host, title, ip, domain, port, country, city bool, size uint) {
+func arrayExpectEqual(t *testing.T, data *Results, host, title, ip, domain, port, country, city bool, size uint) {
 	if !host && !title && !ip && !domain && !port && !country && !city {
 		host, title, ip, domain, port, country, city = true, true, true, true, true, true, true
 	}
 	_, f, r, _ := runtime.Caller(1)
-	if len(data) != int(size) {
-		t.Errorf("%s %d: Expect count=%d. But count=%d.\n", f, r, size, len(data))
+	if len(data.Results) != int(size) {
+		t.Errorf("%s %d: Expect count=%d. But count=%d.\n", f, r, size, len(data.Results))
 	}
-	for _, v := range data {
+	for _, v := range data.Results {
 
 		if (host && v.Host == "") || (!host && v.Host != "") {
 			t.Errorf("%s %d: Expect host=%v\nBut %s\n", f, r, host, v)
@@ -726,7 +726,7 @@ func TestFofa_UserInfo(t *testing.T) {
 				16749,
 				true,
 				os.Getenv("FOFA_AVATAR"),
-        "test_error",
+				"test_error",
 			},
 			wantErr: false,
 		},

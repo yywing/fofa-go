@@ -23,7 +23,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"path"
 	"strconv"
 	"strings"
 
@@ -123,7 +122,8 @@ func (ff *Fofa) QueryAsJSON(page uint, args ...[]byte) ([]byte, error) {
 	}
 
 	q = []byte(base64.StdEncoding.EncodeToString(query))
-	q = bytes.Join([][]byte{[]byte(path.Join(ff.website, "/api/v1/search/all")),
+	q = bytes.Join([][]byte{[]byte(ff.website),
+		[]byte("/api/v1/search/all"),
 		[]byte("?email="), ff.email,
 		[]byte("&key="), ff.key,
 		[]byte("&qbase64="), q,
@@ -171,7 +171,7 @@ func (ff *Fofa) QueryAsArray(page uint, args ...[]byte) (result Results, err err
 // UserInfo get user information
 func (ff *Fofa) UserInfo() (user *User, err error) {
 	user = new(User)
-	queryStr := strings.Join([]string{path.Join(ff.website, "/api/v1/info/my"), "?email=", string(ff.email), "&key=", string(ff.key)}, "")
+	queryStr := strings.Join([]string{ff.website, "/api/v1/info/my", "?email=", string(ff.email), "&key=", string(ff.key)}, "")
 
 	content, err := ff.Get(queryStr)
 
